@@ -6,14 +6,20 @@
     "build": "umi build",
     "postinstall": "umi setup",
     "setup": "umi setup",
-    "start": "npm run dev"
+    "start": "npm run dev",
+    "dev_server": "rm -rf target && nodemon index.js"
   },
   "dependencies": {
+    "antd": "^5.4.5",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "multiparty": "^4.2.3",
     "umi": "^4.0.65"
   },
   "devDependencies": {
     "@types/react": "^18.0.33",
     "@types/react-dom": "^18.0.11",
+    "nodemon": "^2.0.22",
     "typescript": "^5.0.3"
   }
 }
