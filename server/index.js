@@ -70,20 +70,20 @@ server.on("request", async (req, res) => {
   });
 
   if (req.url === "/merge") {
-    const data = await resolvePost(req);
-    const { filename, size } = data;
-    const filePath = path.resolve(UPLOAD_DIR, filename);
-    await mergeFileChunk(filePath, filename, size);
-    res.writeHead(200, {
-      "content-type": "application/json",
-    });
-    res.end(
-      JSON.stringify({
-        code: 0,
-        message: "文件合并成功",
-      })
-    );
-  }
+  //   const data = await resolvePost(req);
+  //   const { filename, size } = data;
+  //   const filePath = path.resolve(UPLOAD_DIR, filename);
+  //   await mergeFileChunk(filePath, filename, size);
+  //   res.writeHead(200, {
+  //     "content-type": "application/json",
+  //   });
+  //   res.end(
+  //     JSON.stringify({
+  //       code: 0,
+  //       message: "文件合并成功",
+  //     })
+  //   );
+  // }
 });
 
 server.listen(8100, () => {
