@@ -82,7 +82,11 @@ export default function Layout() {
           workerRef.current = new Worker('../../public/hash.js');
           workerRef.current.postMessage({fileChunkList});
           workerRef.current.onmessage = (e) => {
-            setPercent(e.data.percentage);
+            const { percentage, hash } = e.data;
+            setPercent(percentage);
+            if (hash) {
+              resolve(hash);
+            }
           }
     })
   }
@@ -92,7 +96,7 @@ export default function Layout() {
     const hash = await calcContentHash(fileChunkList);
     const data = fileChunkList.map(({ file: minFile }, index) => ({
       chunk: minFile,
-      hash: `${file.name}-${index}`,
+      hash: `${hash}-${index}`,
     }));
     uploadChunks(data as any);
   };
@@ -105,7 +109,7 @@ export default function Layout() {
   return (
     <div className={styles.navs}>
       <input type="file" onChange={fileChanghe} />
-      <Progress type='circle' percent={percent} />
+      <Progress percent={percent} />
     </div>
   );
 }

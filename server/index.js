@@ -6,14 +6,11 @@ const path = require("path");
 
 const UPLOAD_DIR = path.resolve(__dirname, "..", "target");
 
-new Buffer("1", 8);
-
 const resolvePost = (req) =>
   new Promise((resolve) => {
     let chunk = "";
     req.on("data", (data) => {
       chunk += data;
-      console.log("chunk", chunk, data);
     });
     req.on("end", () => {
       resolve(JSON.parse(chunk));
@@ -70,19 +67,19 @@ server.on("request", async (req, res) => {
   });
 
   if (req.url === "/merge") {
-    const data = await resolvePost(req);
-    const { filename, size } = data;
-    const filePath = path.resolve(UPLOAD_DIR, filename);
-    await mergeFileChunk(filePath, filename, size);
-    res.writeHead(200, {
-      "content-type": "application/json",
-    });
-    res.end(
-      JSON.stringify({
-        code: 0,
-        message: "文件合并成功",
-      })
-    );
+    // const data = await resolvePost(req);
+    // const { filename, size } = data;
+    // const filePath = path.resolve(UPLOAD_DIR, filename);
+    // await mergeFileChunk(filePath, filename, size);
+    // res.writeHead(200, {
+    //   "content-type": "application/json",
+    // });
+    // res.end(
+    //   JSON.stringify({
+    //     code: 0,
+    //     message: "文件合并成功",
+    //   })
+    // );
   }
 });
 
