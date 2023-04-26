@@ -74,9 +74,9 @@ server.on("request", async (req, res) => {
     const { filename, size } = data;
     const filePath = path.resolve(UPLOAD_DIR, filename);
     await mergeFileChunk(filePath, filename, size);
-    res.writeHead(200, {
-      "content-type": "application/json",
-    });
+    // res.writeHead(200, {
+    //   "content-type": "application/json",
+    // });
     res.end(
       JSON.stringify({
         code: 0,
