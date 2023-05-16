@@ -6,8 +6,6 @@ const path = require("path");
 
 const UPLOAD_DIR = path.resolve(__dirname, "..", "target");
 
-new Buffer("1", 8);
-
 const resolvePost = (req) =>
   new Promise((resolve) => {
     let chunk = "";
@@ -39,6 +37,7 @@ const mergeFileChunk = async (filePath, filename, size) => {
   chunkPaths.map((chunk, index) => {
     pipeStream(path.resolve(chunkDir, chunk), fs.createWriteStream(filePath, { start: index * size }));
   });
+  
 };
 server.on("request", async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -59,7 +58,7 @@ server.on("request", async (req, res) => {
 
     const [chunk] = files.chunk;
 
-    const chunkDir = path.resolve(UPLOAD_DIR, "chunkDir_" + path.parse(filename).base);
+    const chunkDir = path.resolve(UPLOAD_DIR, "chunkDir_" + filename);
 
     if (!fs.existsSync(chunkDir)) {
       await fs.mkdirs(chunkDir);
@@ -71,12 +70,12 @@ server.on("request", async (req, res) => {
 
   if (req.url === "/merge") {
     const data = await resolvePost(req);
-    const { filename, size } = data;
+    const { filename, size, ext } = data;
     const filePath = path.resolve(UPLOAD_DIR, filename);
-    await mergeFileChunk(filePath, filename, size);
-    // res.writeHead(200, {
-    //   "content-type": "application/json",
-    // });
+    await mergeFileChunk(`${filePath}.${ext}`, filename, size);
+    res.writeHead(200, {
+      "content-type": "application/json",
+    });
     res.end(
       JSON.stringify({
         code: 0,
@@ -86,6 +85,6 @@ server.on("request", async (req, res) => {
   }
 });
 
-server.listen(8100, () => {
-  console.log("listening port 8100");
+server.listen(8101, () => {
+  console.log("listening port 8101");
 });

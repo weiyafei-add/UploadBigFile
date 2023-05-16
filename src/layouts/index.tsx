@@ -1,13 +1,18 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styles from "./index.less";
 import { Progress } from 'antd';
+import SparkMd5 from 'spark-md5';
 
 const SIZE = 10 * 1024 * 1024;
 
 export default function Layout() {
-  const [data, setData] = useState<Array<{ file: File }>>();
+  const [currentHash, setHash] = useState<string>();
   const [percent, setPercent] = useState<number>(0);
   const workerRef = useRef<Worker>();
+
+  useEffect(() => {
+    console.log()
+  }, [])
 
   const createFileChunk = (file: File, size = SIZE) => {
     const fileChunkList = [];
@@ -43,19 +48,19 @@ export default function Layout() {
     };
   };
 
-  const uploadChunks = (data: Array<{ chunk: File; hash: string }>) => {
+  const uploadChunks = (data: Array<{ chunk: File; hash: string }>, fileHash: string, ext: string) => {
     const requestList = data
       .map((item, index) => {
         const { hash, chunk } = item;
         const formData = new FormData();
         formData.append("chunk", chunk);
         formData.append("hash", hash);
-        formData.append("filename", "CentOS7.zip");
+        formData.append("filename", fileHash as string);
         return { formData, index };
       })
       .map(({ formData, index }) => {
         return request({
-          url: "http://localhost:8100",
+          url: "http://localhost:8101",
           data: formData,
           // headers: {
           //   "content-type": "multipart/form-data",
@@ -65,10 +70,11 @@ export default function Layout() {
       });
     Promise.all(requestList).then((res) => {
       request({
-        url: "http://localhost:8100/merge",
+        url: "http://localhost:8101/merge",
         data: JSON.stringify({
-          filename: "CentOS7.zip",
+          filename: fileHash,
           size: SIZE,
+          ext,
         }),
         // headers: {
         //   "Content-type": "application/json",
@@ -82,19 +88,24 @@ export default function Layout() {
           workerRef.current = new Worker('../../public/hash.js');
           workerRef.current.postMessage({fileChunkList});
           workerRef.current.onmessage = (e) => {
-            setPercent(e.data.percentage);
+            const { hash, percentage } = e.data;
+            setPercent(percentage);
+            if(hash) {
+              resolve(hash);
+              setHash(hash);
+            }
           }
     })
   }
 
   const handleUpload = async (file: File) => {
     const fileChunkList = createFileChunk(file as File);
-    const hash = await calcContentHash(fileChunkList);
+    const hash = await calcContentHash(fileChunkList) as string;
     const data = fileChunkList.map(({ file: minFile }, index) => ({
       chunk: minFile,
-      hash: `${file.name}-${index}`,
+      hash: `${hash}-${index}`,
     }));
-    uploadChunks(data as any);
+    uploadChunks(data as any, hash, file.name.split('.')[1]);
   };
 
   const fileChanghe = (e: any) => {
@@ -105,7 +116,7 @@ export default function Layout() {
   return (
     <div className={styles.navs}>
       <input type="file" onChange={fileChanghe} />
-      <Progress type='circle' percent={percent} />
+      <Progress  percent={percent} />
     </div>
   );
 }
